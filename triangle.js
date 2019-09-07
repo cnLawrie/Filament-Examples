@@ -69,15 +69,6 @@ class App {
         // 渲染帧
         this.renderer.render(this.swapChain, this.view)
 
-        const dpr = window.devicePixelRatio
-        const width = this.canvas.width = window.innerWidth * dpr
-        const height = this.canvas.height = window.innerHeight * dpr
-        this.view.setViewport([0, 0, width, height]);
-
-        const aspect = width / height;
-        const Projection = Filament.Camera$Projection;
-        this.camera.setProjection(Projection.ORTHO, -aspect, aspect, -1, 1, 0, 1);
-
         //  渲染场景
         window.requestAnimationFrame(this.render);
     }
@@ -90,4 +81,9 @@ class App {
 // 当所有资源下载完成且Filament模块加载完成后，才会调用callback。
 // 在callback中实例花了App对象并绑定在window对象上
 // triangle.filamat是一个包含了shader和定义PBR材质的二进制文件
-Filament.init(['triangle.filamat'], () => { window.app = new App() } );
+Filament.init([ 'nonlit.filamat' ], () => {
+    window.VertexAttribute = Filament.VertexAttribute;
+    window.AttributeType = Filament.VertexBuffer$AttributeType;
+    window.Projection = Filament.Camera$Projection;
+    window.app = new App(document.getElementsByTagName('canvas')[0]);
+});

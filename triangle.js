@@ -1,11 +1,10 @@
 class App {
-    constructor() {
+    constructor(canvas) {
+        this.canvas = canvas
         this.render = this.render.bind(this);
         this.resize = this.resize.bind(this);
         window.addEventListener('resize', this.resize);
-        window.requestAnimationFrame(this.render);
 
-        this.canvas = document.getElementsById('canvas')
         const engine = this.engine = Filament.Engine.create(this.canvas)
 
         this.scene = engine.createScene()
@@ -38,22 +37,24 @@ class App {
             .build(engine)
         this.ib.setBuffer(engine, new Uint16Array([0, 1, 2]));
 
-        const mat = engine.createMaterial('triangle.filamat')
+        const mat = engine.createMaterial('nonlit.filamat')
         const matinst = mat.getDefaultInstance()
         Filament.RenderableManager.Builder(1)
-            .boundingBox({ center: [-1, -1, -1], halfExtent: [1, 1, 1]})
+            .boundingBox({ center: [-1, -1, -1], halfExtent: [1, 1, 1] })
             .material(0, matinst)
-            .geometry(0, Filament.RenderableManager$PrimitiveType.TRIANGLE, this.vb, this.ib)
+            .geometry(0, Filament.RenderableManager$PrimitiveType.TRIANGLES, this.vb, this.ib)
             .build(engine, this.triangle)
 
-        this.swapChain = engin.createSwapChain()
+        this.swapChain = engine.createSwapChain()
         this.renderer = engine.createRenderer()
         this.camera = engine.createCamera()
         this.view = engine.createView();
         this.view.setCamera(this.camera)
-        this.view.setScene(this.scene) 
+        this.view.setScene(this.scene)
         this.view.setClearColor([0.1, 0.2, 0.3, 1.0])
         this.resize()
+
+        window.requestAnimationFrame(this.render);
 
     }
 
@@ -75,15 +76,21 @@ class App {
 
     resize() {
         // 调整视窗和canvas
+        const dpr = window.devicePixelRatio;
+        const width = this.canvas.width = window.innerWidth * dpr;
+        const height = this.canvas.height = window.innerHeight * dpr;
+        this.view.setViewport([0, 0, width, height]);
+        const aspect = width / height;
+        this.camera.setProjection(Projection.ORTHO, -aspect, aspect, -1, 1, 0, 1);
     }
 }
 
 // 当所有资源下载完成且Filament模块加载完成后，才会调用callback。
 // 在callback中实例花了App对象并绑定在window对象上
 // triangle.filamat是一个包含了shader和定义PBR材质的二进制文件
-Filament.init([ 'nonlit.filamat' ], () => {
+Filament.init(['nonlit.filamat'], () => {
     window.VertexAttribute = Filament.VertexAttribute;
     window.AttributeType = Filament.VertexBuffer$AttributeType;
     window.Projection = Filament.Camera$Projection;
-    window.app = new App(document.getElementsByTagName('canvas')[0]);
+    window.app = new App(document.getElementById('canvas'));
 });

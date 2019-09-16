@@ -88,7 +88,7 @@ class App {
 // 当所有资源下载完成且Filament模块加载完成后，才会调用callback。
 // 在callback中实例花了App对象并绑定在window对象上
 // triangle.filamat是一个包含了shader和定义PBR材质的二进制文件
-Filament.init(['nonlit.filamat'], () => {
+Filament.init(['../libs/nonlit.filamat'], () => {
     window.VertexAttribute = Filament.VertexAttribute;
     window.AttributeType = Filament.VertexBuffer$AttributeType;
     window.Projection = Filament.Camera$Projection;
